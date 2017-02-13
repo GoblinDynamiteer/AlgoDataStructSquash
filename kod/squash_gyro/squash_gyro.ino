@@ -5,6 +5,8 @@
 #include<Wire.h>
 const int MPU_addr=0x68;  // I2C address of the MPU-6050
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+uint16_t ticker = 0;
+
 void setup(){
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
@@ -25,13 +27,31 @@ void loop(){
   GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
   GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-  //Serial.print("AcX = "); Serial.print(AcX);
-  //Serial.print(" | AcY = "); Serial.print(AcY);
-  //Serial.print(" | AcZ = "); Serial.print(AcZ);
+
+  AcZ = ((AcZ + 16200)/100);
+
+  if(AcZ < -300 && ticker > 100){
+    Serial.println("Forehand");
+    ticker = 0;
+  }
+  if(AcZ > 300 && ticker > 100){
+    Serial.println("Backhand");
+    ticker = 0;
+  }
+
+  //Serial.println(ticker);
+  
+//  Serial.print("AcX = ");
+  //Serial.println(AcX);
+//  Serial.print(" | AcY = "); 
+//Serial.println(AcY);
+//  Serial.print(" | AcZ = "); 
+//Serial.println(AcZ);
   //Serial.print(" | Tmp = "); Serial.print(Tmp/340.00+36.53);  //equation for temperature in degrees C from datasheet
 /*   Serial.print(" | GyX = "); Serial.print(GyX);
   Serial.print(" | GyY = "); Serial.print(GyY);
-  Serial.print(" | GyZ = "); Serial.println(GyZ); */
-  Serial.println(GyX)
+  Serial.print(" | GyZ = "); Serial.println(GyZ); 
+  Serial.println(GyX); */
+  ticker++;
   delay(10);
 }
