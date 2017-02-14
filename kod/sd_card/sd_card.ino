@@ -31,10 +31,7 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-
-
   Serial.print("Initializing SD card...");
-
   if (!SD.begin(CS_PIN)) {
     Serial.println("initialization failed!");
     return;
@@ -54,6 +51,7 @@ void loop() {
   logfile.println("----------------------");
   logfile.close();
   logfile = SD.open("log.txt");
+  delay("20");
   if(logfile){
     Serial.println("log.txt:");
     // read from the file until there's nothing else in it:
