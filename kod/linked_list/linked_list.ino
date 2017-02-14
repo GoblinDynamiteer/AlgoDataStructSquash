@@ -1,21 +1,30 @@
-
-enum{ FOREHAND, BACKHAND};
-
-typedef struct _S_SLAG{
+typedef struct{
   int styrka;
-  bool typ;
   int tid;
-  _S_SLAG * next;
-}slag;
+  bool typ;
+}slagS;
+
+enum{FOREHAND, BACKHAND};
+#define MAXSLAG 100
+
+slagS slag[MAXSLAG];
+byte antal = 0;
+int ix = 0;
 
 void setup(){
-  Serial.begin (9600);
-  slag slag1;
-  slag1.styrka = 500;
-  slag1.typ = FOREHAND;
-  slag1.tid = 897;
+  Serial.begin(9600);
 }
 
 void loop(){
-  
+  slag[ix].styrka = 300+ix;
+  slag[ix].tid = 21+ix;
+  slag[ix].typ = BACKHAND;
+  Serial.print(ix);
+  Serial.println(":");
+  Serial.println(slag[ix].styrka);
+  Serial.println(slag[ix].tid);
+  Serial.println(slag[ix].typ);
+  Serial.println("-------------------");
+  ix++;
+  delay(500);
 }
