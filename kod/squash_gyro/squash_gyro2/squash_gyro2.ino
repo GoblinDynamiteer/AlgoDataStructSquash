@@ -56,23 +56,56 @@ void loop(){
 //  Serial.println(diff);
 
 
-  if(AcZ < -3300 && back == 0){
+  if(AcZ < -3300){
     Serial.println("Forehand");
     Serial.println(AcZ);
     fore = 1;
-    if(AcZ > 3300){
-      fore = 0;
+    while(AcZ < 3300){
+        Wire.beginTransmission(MPU_addr);
+        Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+        Wire.endTransmission(false);
+        Wire.requestFrom(MPU_addr,14,true);  // request a total of 14 registers
+        AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+        AcZ = ((AcZ - diff));
     }
+    Serial.println("tid för slag:");
+    delay(3000);
   }
+  
+//  if(AcZ > 3300 && fore == 1){
+//    fore = 0;
+////    Serial.println("tid för slag:");
+////    Serial.print();
+//    delay(10000);
+//  }
 
-  if(AcZ > 3300 && fore == 0){
+  if(AcZ > 3300){
+    int time = millis();
     Serial.println("Backhand");
     Serial.println(AcZ);
     back = 1;
-    if(AcZ < -3300){
-      back = 0;
+    while(AcZ > -3300){
+        Wire.beginTransmission(MPU_addr);
+        Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+        Wire.endTransmission(false);
+        Wire.requestFrom(MPU_addr,14,true);  // request a total of 14 registers
+        AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+        AcZ = ((AcZ - diff));
     }
+    time = millis() - time;      
+
+    Serial.println("tid för slag:");
+    Serial.print(time);
+    
+    delay(3000);
   }
+//  if(AcZ < -3300 && back == 1){
+//    back = 0;
+////    Serial.println("tid för slag:");
+////    Serial.print();
+//    delay(10000);
+//  }
+  
   //Serial.println(ticker);
   
 //  Serial.print("AcX = ");
