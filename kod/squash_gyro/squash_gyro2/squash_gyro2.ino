@@ -14,7 +14,7 @@ typedef struct{
 }slagS;
 
 enum{FOREHAND, BACKHAND};
-#define MAXSLAG 10
+#define MAXSLAG 100
 
 /*  Struct array */
 slagS slag[MAXSLAG];
@@ -58,7 +58,7 @@ void loop(){
     slag[ix].styrka = fabs(AcZ);
     slag[ix].tid = (int)time;
     slag[ix].typ = FOREHAND;
-    while(AcZ < 3300){
+    while(fabs(AcZ) > 400){
         readMPUData();
         AcZ = ((AcZ - diff));
     }
@@ -66,8 +66,8 @@ void loop(){
     Serial.println("tid för slag:");
     Serial.print(time);
     slag[ix].langd = (int)time;
+    delay(10);
     ix++;
-    delay(2000);
   }
 
   if(AcZ > 3300){
@@ -77,7 +77,7 @@ void loop(){
     slag[ix].styrka = fabs(AcZ);
     slag[ix].tid = (int)time;
     slag[ix].typ = BACKHAND;
-    while(AcZ > -3300){
+    while(fabs(AcZ) > 400){
         readMPUData();
         AcZ = ((AcZ - diff));
     }
@@ -85,11 +85,25 @@ void loop(){
     Serial.println("tid för slag:");
     Serial.print(time);
     slag[ix].langd = (int)time;
+    delay(10);
     ix++;
-    delay(2000);
   }
-  if(ix == 100){
-      Serial.println("DONE!");
-  }
+  Serial.print("----IX: "); Serial.println(ix);
+    if(ix == MAXSLAG-1){
+        Serial.println("DONE!");
+        for(int i = 0; i < MAXSLAG; i++){
+            Serial.print("Slag ");
+            Serial.println(i+1);
+            Serial.print("Typ: ");
+            Serial.println(slag[i].typ);
+            Serial.print("Styrka: ");
+            Serial.println(slag[i].styrka);
+            Serial.print("Tid: ");
+            Serial.println(slag[i].tid);
+            Serial.print("Langd: ");
+            Serial.println(slag[i].langd);
+            Serial.println("---------------------");
+        }
+    }
   delay(10);
 }
