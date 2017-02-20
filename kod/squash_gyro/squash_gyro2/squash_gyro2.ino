@@ -11,9 +11,6 @@ int time;
 /*   File pointer    */
 File logfile;
 
-/*    Pin for SD-card CS  */
-#define CS_PIN 10
-
 /*  Struct för hållande av slag */
 typedef struct{
   int16_t styrka;
@@ -23,7 +20,7 @@ typedef struct{
 }slagS;
 
 enum{FOREHAND, BACKHAND};
-#define MAXSLAG 100
+#define MAXSLAG 10
 
 /*  Struct array */
 slagS slag[MAXSLAG];
@@ -65,19 +62,25 @@ void writeSD(){
 }
 
 void setup(){
-  Wire.begin();
-  Wire.beginTransmission(MPU_addr);
-  Wire.write(0x6B);
-  Wire.write(0);
-  Wire.endTransmission(true);
-  Serial.begin(9600);
-  int countdown = 10;
-  Serial.print("Initializing SD card...");
-  if (!SD.begin(CS_PIN)) {
-    Serial.println("initialization failed!");
-    return;
+    Serial.begin(9600);
+    while (!Serial) {
+      ;
+    }
+    Serial.print("Initializing SD card...");
+    if (!SD.begin(10)) {
+      Serial.println("initialization failed!");
+      return;
   }
-  Serial.println("initialization done.");
+  Serial.println("initialization done?");
+    Wire.begin();
+    Wire.beginTransmission(MPU_addr);
+    Wire.write(0x6B);
+    Wire.write(0);
+    Wire.endTransmission(true);
+
+    int countdown = 10;
+
+
   /*  Hitta diff-värde för kalibration   */
   Serial.print("Calibrating completed in ");
   for(int i = 0; i < 10; i++){
