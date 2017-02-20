@@ -1,15 +1,10 @@
 #include <Wire.h>
-#include <SPI.h>
-#include <SD.h>
 
 const int MPU_addr = 0x68;
 int16_t AcZ;
 uint16_t ticker = 0;
 uint16_t diff = 0;
 int time;
-
-/*   File pointer    */
-File logfile;
 
 /*  Struct för hållande av slag */
 typedef struct{
@@ -35,28 +30,23 @@ void readMPUData(){
     AcZ = Wire.read()<<8|Wire.read();
 }
 
-void writeSD(){
-    Serial.println("Writing data to SD Card");
-    /*  Remove old log file  */
-    SD.remove("log.txt");
-    logfile = SD.open("log.txt", FILE_WRITE);
-    logfile.println("----------------------");
+void writeData(){
+    Serial.println("----------------------");
     for(int i = 0; i < MAXSLAG; i++){
-        logfile.print("Slag "); logfile.println(i);
-        logfile.print("Typ ");
+        Serial.print("Slag "); Serial.println(i);
+        Serial.print("Typ ");
         if(slag[i].typ == BACKHAND){
-            logfile.println("Backhand");
+            Serial.println("Backhand");
         }
         else{
-            logfile.println("Forehand");
+            Serial.println("Forehand");
         }
-        logfile.print("Styrka "); logfile.println(slag[i].styrka);
-        logfile.print("Tid "); logfile.println(slag[i].tid);
-        logfile.print("Längd "); logfile.println(slag[i].langd);
-        logfile.println("----------------------");
+        Serial.print("Styrka "); Serial.println(slag[i].styrka);
+        Serial.print("Tid "); Serial.println(slag[i].tid);
+        Serial.print("Längd "); Serial.println(slag[i].langd);
+        Serial.println("----------------------");
     }
-    //logfile.println("----------------------");
-    logfile.close();
+    //Serial.println("----------------------");
     Serial.println("Writing Done!");
     exit(0);  //The 0 is required to prevent compile error.
 }
@@ -66,11 +56,6 @@ void setup(){
     while (!Serial) {
       ;
     }
-    Serial.print("Initializing SD card...");
-    if (!SD.begin(10)) {
-      Serial.println("initialization failed!");
-      return;
-  }
   Serial.println("initialization done?");
     Wire.begin();
     Wire.beginTransmission(MPU_addr);
@@ -137,7 +122,7 @@ void loop(){
     Serial.print("----IX: "); Serial.println(ix);
     if(ix == MAXSLAG-1){
         Serial.println("DONE!");
-        writeSD();
+        writeData();
     }
     delay(10);
 }
