@@ -1,9 +1,18 @@
 #include <Wire.h>
-const int MPU_addr = 0x68;  // I2C address of the MPU-6050
+#include <SPI.h>
+#include <SD.h>
+
+const int MPU_addr = 0x68;
 int16_t AcZ;
 uint16_t ticker = 0;
 uint16_t diff = 0;
 int time;
+
+/*   File pointer    */
+File logfile;
+
+/*    Pin for SD-card CS  */
+#define CS_PIN 10
 
 /*  Struct för hållande av slag */
 typedef struct{
@@ -29,6 +38,32 @@ void readMPUData(){
     AcZ = Wire.read()<<8|Wire.read();
 }
 
+void writeSD(){
+    Serial.println("Writing data to SD Card");
+    /*  Remove old log file  */
+    SD.remove("log.txt");
+    logfile = SD.open("log.txt", FILE_WRITE);
+    logfile.println("----------------------");
+    for(int i = 0; i < MAXSLAG; i++){
+        logfile.print("Slag "); logfile.println(i);
+        logfile.print("Typ ");
+        if(slag[i].typ == BACKHAND){
+            logfile.println("Backhand");
+        }
+        else{
+            logfile.println("Forehand");
+        }
+        logfile.print("Styrka "); logfile.println(slag[i].styrka);
+        logfile.print("Tid "); logfile.println(slag[i].tid);
+        logfile.print("Längd "); logfile.println(slag[i].langd);
+        logfile.println("----------------------");
+    }
+    //logfile.println("----------------------");
+    logfile.close();
+    Serial.println("Writing Done!");
+    exit(0);  //The 0 is required to prevent compile error.
+}
+
 void setup(){
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
@@ -37,6 +72,12 @@ void setup(){
   Wire.endTransmission(true);
   Serial.begin(9600);
   int countdown = 10;
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(CS_PIN)) {
+    Serial.println("initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
   /*  Hitta diff-värde för kalibration   */
   Serial.print("Calibrating completed in ");
   for(int i = 0; i < 10; i++){
@@ -93,20 +134,7 @@ void loop(){
     Serial.print("----IX: "); Serial.println(ix);
     if(ix == MAXSLAG-1){
         Serial.println("DONE!");
-        /*      Ptint all recorded data */
-        for(int i = 0; i < MAXSLAG; i++){
-            Serial.print("Slag ");
-            Serial.println(i+1);
-            Serial.print("Typ: ");
-            Serial.println(slag[i].typ);
-            Serial.print("Styrka: ");
-            Serial.println(slag[i].styrka);
-            Serial.print("Tid: ");
-            Serial.println(slag[i].tid);
-            Serial.print("Langd: ");
-            Serial.println(slag[i].langd);
-            Serial.println("---------------------");
-        }
+        writeSD();
     }
-delay(10);
+    delay(10);
 }
