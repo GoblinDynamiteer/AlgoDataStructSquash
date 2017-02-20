@@ -23,10 +23,10 @@ int ix = 0;
 
 void readMPUData(){
     Wire.beginTransmission(MPU_addr);
-    Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+    Wire.write(0x3B);
     Wire.endTransmission(false);
-    Wire.requestFrom(MPU_addr,14,true);  // request a total of 14 registers
-    AcZ = Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+    Wire.requestFrom(MPU_addr,14,true);
+    AcZ = Wire.read()<<8|Wire.read();
 }
 
 void setup(){
@@ -48,6 +48,7 @@ void setup(){
   }
   diff = diff / 10;
 }
+
 void loop(){
   readMPUData();
   AcZ = ((AcZ - diff));
@@ -56,7 +57,7 @@ void loop(){
     Serial.println("Forehand");
     Serial.println(AcZ);
     slag[ix].styrka = fabs(AcZ);
-    slag[ix].tid = (int)time;
+    slag[ix].tid = (int)fabs(time);
     slag[ix].typ = FOREHAND;
     while(fabs(AcZ) > 400){
         readMPUData();
@@ -88,9 +89,11 @@ void loop(){
     delay(10);
     ix++;
   }
-  Serial.print("----IX: "); Serial.println(ix);
+  /*    Output index value of number of added structs */
+    Serial.print("----IX: "); Serial.println(ix);
     if(ix == MAXSLAG-1){
         Serial.println("DONE!");
+        /*      Ptint all recorded data */
         for(int i = 0; i < MAXSLAG; i++){
             Serial.print("Slag ");
             Serial.println(i+1);
@@ -105,5 +108,5 @@ void loop(){
             Serial.println("---------------------");
         }
     }
-  delay(10);
+delay(10);
 }
